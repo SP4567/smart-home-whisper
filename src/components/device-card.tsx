@@ -1,4 +1,3 @@
-
 import { 
   Lightbulb, 
   Thermometer, 
@@ -8,7 +7,9 @@ import {
   Plug, 
   RotateCw, 
   Power, 
-  Unlock 
+  Unlock,
+  Wifi,
+  Bluetooth
 } from "lucide-react";
 import { Device } from "@/data/mock-data";
 import { useDevices } from "@/contexts/device-context";
@@ -23,7 +24,7 @@ interface DeviceCardProps {
 }
 
 export function DeviceCard({ device, className }: DeviceCardProps) {
-  const { toggleDevice, updateDeviceData } = useDevices();
+  const { toggleDevice, updateDeviceData, disconnectFromDevice } = useDevices();
   
   const getDeviceIcon = () => {
     switch (device.type) {
@@ -46,6 +47,24 @@ export function DeviceCard({ device, className }: DeviceCardProps) {
       default:
         return <Power className={cn("h-5 w-5", device.isOn ? "text-primary" : "text-muted-foreground")} />;
     }
+  };
+
+  const getConnectionIcon = () => {
+    if (device.connectionType === "wifi") {
+      return <Wifi className="h-4 w-4 text-blue-400" />;
+    } else if (device.connectionType === "bluetooth") {
+      return <Bluetooth className="h-4 w-4 text-indigo-400" />;
+    }
+    return null;
+  };
+
+  const getConnectionInfo = () => {
+    if (device.connectionType === "wifi") {
+      return device.ipAddress;
+    } else if (device.connectionType === "bluetooth") {
+      return device.macAddress;
+    }
+    return null;
   };
 
   const renderDeviceControls = () => {
@@ -122,6 +141,10 @@ export function DeviceCard({ device, className }: DeviceCardProps) {
     }
   };
 
+  const handleDisconnect = async () => {
+    await disconnectFromDevice(device.id);
+  };
+
   return (
     <Card className={cn("device-card-gradient overflow-hidden", className)}>
       <CardHeader className="p-4">
@@ -130,7 +153,8 @@ export function DeviceCard({ device, className }: DeviceCardProps) {
             {getDeviceIcon()}
             <CardTitle className="text-base">{device.name}</CardTitle>
           </div>
-          <div>
+          <div className="flex items-center gap-2">
+            {getConnectionIcon()}
             <span 
               className={cn(
                 "inline-block h-2 w-2 rounded-full", 
@@ -139,12 +163,15 @@ export function DeviceCard({ device, className }: DeviceCardProps) {
             />
           </div>
         </div>
-        <CardDescription className="pt-1">{device.room}</CardDescription>
+        <CardDescription className="flex flex-col pt-1">
+          <span>{device.room}</span>
+          <span className="text-xs text-muted-foreground">{getConnectionInfo()}</span>
+        </CardDescription>
       </CardHeader>
       <CardContent className="px-4 pb-2">
         {renderDeviceControls()}
       </CardContent>
-      <CardFooter className="p-4 pt-2">
+      <CardFooter className="p-4 pt-2 flex flex-col gap-2">
         <Button 
           variant={device.isOn ? "default" : "outline"} 
           className="w-full"
@@ -152,6 +179,15 @@ export function DeviceCard({ device, className }: DeviceCardProps) {
         >
           <Power className="mr-2 h-4 w-4" />
           {device.isOn ? "Turn Off" : "Turn On"}
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          size="sm"
+          className="w-full text-xs"
+          onClick={handleDisconnect}
+        >
+          Disconnect
         </Button>
       </CardFooter>
     </Card>

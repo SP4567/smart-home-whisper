@@ -9,6 +9,7 @@ export type DeviceType =
   | "outlet";
 
 export type DeviceStatus = "online" | "offline";
+export type ConnectionType = "wifi" | "bluetooth" | "none";
 
 export interface Device {
   id: string;
@@ -17,6 +18,9 @@ export interface Device {
   room: string;
   status: DeviceStatus;
   isOn: boolean;
+  connectionType: ConnectionType;
+  macAddress?: string;
+  ipAddress?: string;
   data?: {
     brightness?: number;
     color?: string;
@@ -45,6 +49,8 @@ export const mockDevices: Device[] = [
     room: "Living Room",
     status: "online",
     isOn: true,
+    connectionType: "wifi",
+    ipAddress: "192.168.1.101",
     data: {
       brightness: 80,
       color: "#f5e3cb" // warm white
@@ -57,6 +63,8 @@ export const mockDevices: Device[] = [
     room: "Living Room",
     status: "online",
     isOn: false,
+    connectionType: "wifi",
+    ipAddress: "192.168.1.102",
     data: {
       brightness: 60,
       color: "#f5e3cb"
@@ -69,6 +77,8 @@ export const mockDevices: Device[] = [
     room: "Living Room",
     status: "online",
     isOn: true,
+    connectionType: "wifi",
+    ipAddress: "192.168.1.103",
     data: {
       temperature: 72
     }
@@ -80,6 +90,8 @@ export const mockDevices: Device[] = [
     room: "Hallway",
     status: "online",
     isOn: true,
+    connectionType: "bluetooth",
+    macAddress: "00:11:22:33:44:55",
     data: {
       locked: true
     }
@@ -90,7 +102,9 @@ export const mockDevices: Device[] = [
     type: "camera",
     room: "Hallway",
     status: "online",
-    isOn: true
+    isOn: true,
+    connectionType: "wifi",
+    ipAddress: "192.168.1.104"
   },
   {
     id: "light-3",
@@ -99,6 +113,8 @@ export const mockDevices: Device[] = [
     room: "Kitchen",
     status: "online",
     isOn: true,
+    connectionType: "wifi",
+    ipAddress: "192.168.1.105",
     data: {
       brightness: 100,
       color: "#ffffff" // bright white
@@ -111,6 +127,8 @@ export const mockDevices: Device[] = [
     room: "Master Bedroom",
     status: "online",
     isOn: false,
+    connectionType: "wifi",
+    ipAddress: "192.168.1.106",
     data: {
       brightness: 50,
       color: "#f5d6a8" // soft warm
@@ -123,6 +141,8 @@ export const mockDevices: Device[] = [
     room: "Living Room",
     status: "online",
     isOn: false,
+    connectionType: "bluetooth",
+    macAddress: "11:22:33:44:55:66",
     data: {
       volume: 65
     }
@@ -133,7 +153,9 @@ export const mockDevices: Device[] = [
     type: "outlet",
     room: "Office",
     status: "online",
-    isOn: true
+    isOn: true,
+    connectionType: "wifi",
+    ipAddress: "192.168.1.107"
   },
   {
     id: "vacuum-1",
@@ -142,6 +164,8 @@ export const mockDevices: Device[] = [
     room: "Living Room",
     status: "offline",
     isOn: false,
+    connectionType: "wifi",
+    ipAddress: "192.168.1.108",
     data: {
       batteryLevel: 20
     }

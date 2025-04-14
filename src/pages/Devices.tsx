@@ -1,6 +1,7 @@
 
 import { useDevices } from "@/contexts/device-context";
 import { DeviceCard } from "@/components/device-card";
+import { DeviceScanner } from "@/components/device-scanner";
 import { rooms } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +14,7 @@ export default function Devices() {
   const navigate = useNavigate();
   const [roomFilter, setRoomFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [connectionFilter, setConnectionFilter] = useState<string>("all");
   
   // Get unique device types
   const deviceTypes = Array.from(new Set(devices.map(device => device.type)));
@@ -21,7 +23,8 @@ export default function Devices() {
   const filteredDevices = devices.filter(device => {
     const matchesRoom = roomFilter === "all" || device.room === roomFilter;
     const matchesType = typeFilter === "all" || device.type === typeFilter;
-    return matchesRoom && matchesType;
+    const matchesConnection = connectionFilter === "all" || device.connectionType === connectionFilter;
+    return matchesRoom && matchesType && matchesConnection;
   });
 
   return (
@@ -37,8 +40,11 @@ export default function Devices() {
         </Button>
       </div>
       
+      {/* Device Scanner */}
+      <DeviceScanner />
+      
       <div className="flex flex-col gap-4 sm:flex-row">
-        <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+        <div className="w-full sm:w-1/2 md:w-1/4">
           <label htmlFor="room-filter" className="mb-2 block text-sm font-medium">
             Filter by Room
           </label>
@@ -55,7 +61,7 @@ export default function Devices() {
           </Select>
         </div>
         
-        <div className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+        <div className="w-full sm:w-1/2 md:w-1/4">
           <label htmlFor="type-filter" className="mb-2 block text-sm font-medium">
             Filter by Type
           </label>
@@ -70,6 +76,22 @@ export default function Devices() {
                   {type.charAt(0).toUpperCase() + type.slice(1)}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="w-full sm:w-1/2 md:w-1/4">
+          <label htmlFor="connection-filter" className="mb-2 block text-sm font-medium">
+            Filter by Connection
+          </label>
+          <Select value={connectionFilter} onValueChange={setConnectionFilter}>
+            <SelectTrigger id="connection-filter">
+              <SelectValue placeholder="Select connection" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Connections</SelectItem>
+              <SelectItem value="wifi">WiFi</SelectItem>
+              <SelectItem value="bluetooth">Bluetooth</SelectItem>
             </SelectContent>
           </Select>
         </div>

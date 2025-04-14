@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useDevices } from "@/contexts/device-context";
 import { useNavigate } from "react-router-dom";
-import { rooms, DeviceType } from "@/data/mock-data";
+import { rooms, DeviceType, ConnectionType } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lightbulb, Thermometer, Lock, Camera, Speaker, RotateCw, Plug } from "lucide-react";
+import { Lightbulb, Thermometer, Lock, Camera, Speaker, RotateCw, Plug, Wifi, Bluetooth } from "lucide-react";
 
 export default function AddDevice() {
   const { addDevice } = useDevices();
@@ -23,6 +23,9 @@ export default function AddDevice() {
   const [name, setName] = useState("");
   const [deviceType, setDeviceType] = useState<DeviceType>("light");
   const [room, setRoom] = useState(rooms[0]);
+  const [connectionType, setConnectionType] = useState<ConnectionType>("wifi");
+  const [ipAddress, setIpAddress] = useState("");
+  const [macAddress, setMacAddress] = useState("");
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +36,9 @@ export default function AddDevice() {
       room,
       status: "online",
       isOn: false,
+      connectionType,
+      ...(connectionType === "wifi" && ipAddress ? { ipAddress } : {}),
+      ...(connectionType === "bluetooth" && macAddress ? { macAddress } : {}),
       data: getDefaultDataForType(deviceType),
     });
     
@@ -176,6 +182,56 @@ export default function AddDevice() {
               </Select>
             </div>
             
+            <div className="space-y-2">
+              <Label htmlFor="connectionType">Connection Type</Label>
+              <Select 
+                value={connectionType} 
+                onValueChange={(value) => setConnectionType(value as ConnectionType)}
+              >
+                <SelectTrigger id="connectionType">
+                  <SelectValue placeholder="Select connection type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="wifi">
+                    <div className="flex items-center gap-2">
+                      <Wifi className="h-4 w-4" />
+                      <span>WiFi</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="bluetooth">
+                    <div className="flex items-center gap-2">
+                      <Bluetooth className="h-4 w-4" />
+                      <span>Bluetooth</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {connectionType === "wifi" && (
+              <div className="space-y-2">
+                <Label htmlFor="ipAddress">IP Address</Label>
+                <Input
+                  id="ipAddress"
+                  placeholder="e.g., 192.168.1.100"
+                  value={ipAddress}
+                  onChange={(e) => setIpAddress(e.target.value)}
+                />
+              </div>
+            )}
+            
+            {connectionType === "bluetooth" && (
+              <div className="space-y-2">
+                <Label htmlFor="macAddress">MAC Address</Label>
+                <Input
+                  id="macAddress"
+                  placeholder="e.g., 00:11:22:33:44:55"
+                  value={macAddress}
+                  onChange={(e) => setMacAddress(e.target.value)}
+                />
+              </div>
+            )}
+            
             <div className="rounded-lg border p-4">
               <div className="mb-4 flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
@@ -191,7 +247,7 @@ export default function AddDevice() {
                 </div>
               </div>
               <p className="text-sm">
-                You're adding a new {deviceType} called "{name || '[Name]'}" to your {room}.
+                You're adding a new {deviceType} called "{name || '[Name]'}" to your {room} via {connectionType}.
               </p>
             </div>
           </CardContent>
