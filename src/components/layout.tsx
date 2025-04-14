@@ -18,13 +18,11 @@ export function Layout() {
           {/* Header */}
           <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background px-4 sm:px-6">
             {/* Sidebar toggle (mobile only) */}
-            <SidebarTrigger asChild>
-              {/* ✅ Must be a single element — no fragments */}
-              <Button variant="ghost" size="icon" className="md:hidden">
+            <div className="md:hidden">
+              <SidebarTrigger>
                 <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle sidebar</span>
-              </Button>
-            </SidebarTrigger>
+              </SidebarTrigger>
+            </div>
 
             {/* Header Right Section */}
             <div className="ml-auto flex items-center gap-2">
