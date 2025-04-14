@@ -9,37 +9,38 @@ import { Button } from "@/components/ui/button";
 export function Layout() {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-muted">
+      <div className="flex min-h-screen w-full">
         {/* Sidebar */}
         <AppSidebar />
 
-        {/* Main Layout */}
+        {/* Main Content Wrapper */}
         <div className="flex flex-1 flex-col">
-          {/* Top Header */}
+          {/* Header */}
           <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background px-4 sm:px-6">
-            {/* Sidebar Toggle on Mobile */}
+            {/* Sidebar toggle (mobile only) */}
             <SidebarTrigger asChild>
+              {/* ✅ Must be a single element — no fragments */}
               <Button variant="ghost" size="icon" className="md:hidden">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle sidebar</span>
               </Button>
             </SidebarTrigger>
 
-            {/* Right Section */}
-            <div className="flex items-center gap-2 ml-auto">
+            {/* Header Right Section */}
+            <div className="ml-auto flex items-center gap-2">
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
                 <span className="sr-only">Notifications</span>
               </Button>
 
-              {/* Theme Toggle for Small Screens */}
+              {/* Dark/Light Mode Toggle (mobile) */}
               <div className="block md:hidden">
                 <ThemeToggle />
               </div>
             </div>
           </header>
 
-          {/* Main Content Area */}
+          {/* Page Content */}
           <main className="flex-1 overflow-auto p-4 sm:p-6">
             <Outlet />
           </main>
