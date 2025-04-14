@@ -8,7 +8,8 @@ import {
   MessageSquare, 
   BarChart, 
   Settings, 
-  LogOut 
+  LogOut,
+  GraduationCap
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -42,6 +43,11 @@ const navItems = [
     title: "Chat Assistant",
     icon: MessageSquare,
     path: "/assistant"
+  },
+  {
+    title: "Study Assistant",
+    icon: GraduationCap,
+    path: "/study-assistant"
   },
   {
     title: "Analytics",
