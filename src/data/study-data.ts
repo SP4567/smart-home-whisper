@@ -1,6 +1,4 @@
 
-import { StaticImageData } from "next/image";
-
 export interface StudyResource {
   id: string;
   title: string;
@@ -19,7 +17,7 @@ export interface TimeTableEntry {
   startTime: string;
   endTime: string;
   subject?: string;
-  type: 'study' | 'break' | 'exercise' | 'meal' | 'other';
+  type: 'study' | 'break' | 'exercise' | 'meal' | 'other' | 'routine';
   description?: string;
   completed: boolean;
 }
@@ -140,6 +138,21 @@ export const sampleTimetable: TimeTableEntry[] = [
   }
 ];
 
+// Sample routine activities
+export const routineActivities = [
+  { id: 'wake', title: 'Wake Up', duration: 15, importance: 'high', category: 'personal' },
+  { id: 'breakfast', title: 'Breakfast', duration: 30, importance: 'high', category: 'meal' },
+  { id: 'exercise', title: 'Exercise', duration: 45, importance: 'high', category: 'health' },
+  { id: 'shower', title: 'Shower & Get Ready', duration: 30, importance: 'high', category: 'personal' },
+  { id: 'study', title: 'Study Session', duration: 90, importance: 'high', category: 'academic' },
+  { id: 'lunch', title: 'Lunch', duration: 45, importance: 'high', category: 'meal' },
+  { id: 'break', title: 'Short Break', duration: 15, importance: 'medium', category: 'rest' },
+  { id: 'hobby', title: 'Hobby Time', duration: 60, importance: 'medium', category: 'personal' },
+  { id: 'dinner', title: 'Dinner', duration: 45, importance: 'high', category: 'meal' },
+  { id: 'relaxation', title: 'Relaxation', duration: 60, importance: 'medium', category: 'rest' },
+  { id: 'sleep', title: 'Sleep', duration: 480, importance: 'high', category: 'health' }
+];
+
 // Sample responses for common questions
 export const commonResponses = {
   greeting: "Hello! I'm your Study Assistant. How can I help you today?",
@@ -154,5 +167,13 @@ export const commonResponses = {
     "Stay hydrated and maintain a healthy diet to support brain function.",
     "Get adequate sleep to consolidate memory and improve learning.",
     "Try different study environments to find what works best for you."
+  ],
+  routineGeneration: "I've generated a personalized daily routine for you based on best practices for productivity and well-being.",
+  routineTips: [
+    "Consistency is key - try to follow a similar schedule each day.",
+    "Block time for deep work when you're most productive.",
+    "Include buffer time between activities to avoid feeling rushed.",
+    "Make sure to include enough time for sleep and rest.",
+    "Balance academic, social, and personal activities for better well-being."
   ]
 };

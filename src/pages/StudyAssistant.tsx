@@ -1,12 +1,38 @@
 
 import { useState, useRef, useEffect } from "react";
-import { useStudyAssistant } from "@/contexts/study-assistant-context";
+import { useStudyAssistant, RoutinePreferences } from "@/contexts/study-assistant-context";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mic, Send, MicOff, Book, Calendar, Video, Clock, Check, GraduationCap } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { 
+  Mic, 
+  Send, 
+  MicOff, 
+  Book, 
+  Calendar, 
+  Video, 
+  Clock, 
+  Check, 
+  GraduationCap,
+  AlarmClock,
+  Coffee,
+  Utensils,
+  Dumbbell,
+  Moon,
+  ListTodo
+} from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function StudyAssistant() {
@@ -17,10 +43,15 @@ export default function StudyAssistant() {
     timetable,
     generateTimetable,
     recommendResources,
-    markTimetableItemComplete
+    markTimetableItemComplete,
+    dailyRoutine,
+    generateDailyRoutine,
+    personalizeDailyRoutine,
+    routinePreferences
   } = useStudyAssistant();
   const [input, setInput] = useState("");
   const [isListening, setIsListening] = useState(false);
+  const [routinePrefs, setRoutinePrefs] = useState<RoutinePreferences>(routinePreferences);
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -38,6 +69,15 @@ export default function StudyAssistant() {
     if (!input.trim()) return;
     sendMessage(input);
     setInput("");
+  };
+
+  // Handle routine preferences update
+  const handleUpdateRoutinePreferences = () => {
+    personalizeDailyRoutine(routinePrefs);
+    toast({
+      title: "Routine updated",
+      description: "Your daily routine has been personalized based on your preferences."
+    });
   };
 
   // Mock speech recognition
@@ -76,7 +116,7 @@ export default function StudyAssistant() {
     <div className="container mx-auto flex flex-col">
       <div className="mb-4">
         <h1 className="text-3xl font-bold tracking-tight">Study Assistant</h1>
-        <p className="text-muted-foreground">Your AI companion for effective learning.</p>
+        <p className="text-muted-foreground">Your AI companion for effective learning and daily planning.</p>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -92,6 +132,10 @@ export default function StudyAssistant() {
                 <Calendar className="h-4 w-4 mr-2" />
                 Timetable
               </TabsTrigger>
+              <TabsTrigger value="routine">
+                <ListTodo className="h-4 w-4 mr-2" />
+                Daily Routine
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="chat">
@@ -99,7 +143,7 @@ export default function StudyAssistant() {
                 <CardHeader className="pb-3">
                   <CardTitle>Study AI Assistant</CardTitle>
                   <CardDescription>
-                    Ask about study resources, get recommendations, or generate a timetable.
+                    Ask about study resources, get recommendations, or generate a daily routine or timetable.
                   </CardDescription>
                 </CardHeader>
                 
@@ -152,7 +196,7 @@ export default function StudyAssistant() {
                       {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
                     </Button>
                     <Textarea
-                      placeholder="Ask about study materials, schedules, or topics..."
+                      placeholder="Ask about study materials, schedules, routines, or topics..."
                       className="min-h-10 flex-1 resize-none"
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
@@ -229,6 +273,151 @@ export default function StudyAssistant() {
                 </CardContent>
               </Card>
             </TabsContent>
+            
+            <TabsContent value="routine">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-2">
+                  <Card>
+                    <CardHeader>
+                      <div className="flex justify-between items-center">
+                        <CardTitle>Daily Routine</CardTitle>
+                        <Button variant="outline" onClick={() => generateDailyRoutine()}>
+                          <ListTodo className="mr-2 h-4 w-4" />
+                          Generate New
+                        </Button>
+                      </div>
+                      <CardDescription>
+                        Your AI-generated daily routine optimized for productivity and well-being
+                      </CardDescription>
+                    </CardHeader>
+                    
+                    <CardContent>
+                      <div className="space-y-4">
+                        {dailyRoutine.map((item) => (
+                          <div key={item.id} className="flex items-center gap-4 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                            <div className={`p-2 rounded-full ${getTimeTableItemColor(item.type)}`}>
+                              {getRoutineItemIcon(item.type, item.title)}
+                            </div>
+                            
+                            <div className="flex-1">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h4 className={`font-medium ${item.completed ? 'line-through text-muted-foreground' : ''}`}>
+                                    {item.title}
+                                  </h4>
+                                  {item.description && (
+                                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                                  )}
+                                </div>
+                                <span className="text-sm font-medium">
+                                  {item.startTime} - {item.endTime}
+                                </span>
+                              </div>
+                            </div>
+                            
+                            <Button 
+                              variant={item.completed ? "default" : "outline"} 
+                              size="sm"
+                              onClick={() => markTimetableItemComplete(item.id, !item.completed)}
+                            >
+                              <Check className="h-4 w-4 mr-1" />
+                              {item.completed ? "Done" : "Mark Done"}
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                <div>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Routine Preferences</CardTitle>
+                      <CardDescription>
+                        Customize your daily routine
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="wakeup">Wake Up Time</Label>
+                          <Input 
+                            id="wakeup" 
+                            type="time" 
+                            value={routinePrefs.wakeUpTime}
+                            onChange={(e) => setRoutinePrefs({...routinePrefs, wakeUpTime: e.target.value})}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="sleep">Sleep Time</Label>
+                          <Input 
+                            id="sleep" 
+                            type="time" 
+                            value={routinePrefs.sleepTime}
+                            onChange={(e) => setRoutinePrefs({...routinePrefs, sleepTime: e.target.value})}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="exercise">Exercise Duration (minutes)</Label>
+                          <Select
+                            value={routinePrefs.exerciseDuration.toString()}
+                            onValueChange={(value) => setRoutinePrefs({...routinePrefs, exerciseDuration: parseInt(value)})}
+                          >
+                            <SelectTrigger id="exercise">
+                              <SelectValue placeholder="Select duration" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="15">15 minutes</SelectItem>
+                              <SelectItem value="30">30 minutes</SelectItem>
+                              <SelectItem value="45">45 minutes</SelectItem>
+                              <SelectItem value="60">60 minutes</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="studyHours">Study Hours Per Day</Label>
+                          <Select
+                            value={routinePrefs.studyHoursPerDay.toString()}
+                            onValueChange={(value) => setRoutinePrefs({...routinePrefs, studyHoursPerDay: parseInt(value)})}
+                          >
+                            <SelectTrigger id="studyHours">
+                              <SelectValue placeholder="Select hours" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="2">2 hours</SelectItem>
+                              <SelectItem value="3">3 hours</SelectItem>
+                              <SelectItem value="4">4 hours</SelectItem>
+                              <SelectItem value="5">5 hours</SelectItem>
+                              <SelectItem value="6">6 hours</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Switch 
+                            id="hobbies" 
+                            checked={routinePrefs.includeHobbies}
+                            onCheckedChange={(checked) => setRoutinePrefs({...routinePrefs, includeHobbies: checked})}
+                          />
+                          <Label htmlFor="hobbies">Include Hobby Time</Label>
+                        </div>
+                        
+                        <Button 
+                          className="w-full" 
+                          onClick={handleUpdateRoutinePreferences}
+                        >
+                          Update Routine
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
         
@@ -276,6 +465,8 @@ function getTimeTableItemColor(type: string): string {
       return 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300';
     case 'exercise':
       return 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300';
+    case 'routine':
+      return 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300';
     default:
       return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
   }
@@ -288,9 +479,29 @@ function getTimeTableItemIcon(type: string): JSX.Element {
     case 'break':
       return <Clock className="h-4 w-4" />;
     case 'meal':
-      return <GraduationCap className="h-4 w-4" />;
+      return <Utensils className="h-4 w-4" />;
     case 'exercise':
-      return <GraduationCap className="h-4 w-4" />;
+      return <Dumbbell className="h-4 w-4" />;
+    default:
+      return <Calendar className="h-4 w-4" />;
+  }
+}
+
+function getRoutineItemIcon(type: string, title: string): JSX.Element {
+  if (title.toLowerCase().includes('wake')) return <AlarmClock className="h-4 w-4" />;
+  if (title.toLowerCase().includes('sleep')) return <Moon className="h-4 w-4" />;
+  
+  switch (type) {
+    case 'study':
+      return <Book className="h-4 w-4" />;
+    case 'break':
+      return <Coffee className="h-4 w-4" />;
+    case 'meal':
+      return <Utensils className="h-4 w-4" />;
+    case 'exercise':
+      return <Dumbbell className="h-4 w-4" />;
+    case 'routine':
+      return <ListTodo className="h-4 w-4" />;
     default:
       return <Calendar className="h-4 w-4" />;
   }

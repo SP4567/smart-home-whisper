@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { TimeTableEntry, StudyResource, studyResources, sampleTimetable, commonResponses } from '@/data/study-data';
+import { TimeTableEntry, StudyResource, studyResources, sampleTimetable, commonResponses, routineActivities } from '@/data/study-data';
 
 interface StudyAssistantContextType {
   messages: ChatMessage[];
@@ -12,6 +12,23 @@ interface StudyAssistantContextType {
   isGeneratingResponse: boolean;
   clearMessages: () => void;
   markTimetableItemComplete: (id: string, completed: boolean) => void;
+  dailyRoutine: TimeTableEntry[];
+  generateDailyRoutine: (wakeUpTime?: string, sleepTime?: string) => void;
+  personalizeDailyRoutine: (preferences: RoutinePreferences) => void;
+  routinePreferences: RoutinePreferences;
+}
+
+export interface RoutinePreferences {
+  wakeUpTime: string;
+  sleepTime: string;
+  exerciseDuration: number;
+  studyHoursPerDay: number;
+  includeHobbies: boolean;
+  mealTimes: {
+    breakfast: string;
+    lunch: string;
+    dinner: string;
+  };
 }
 
 export interface ChatMessage {
@@ -33,7 +50,20 @@ export const StudyAssistantProvider = ({ children }: { children: React.ReactNode
     }
   ]);
   const [timetable, setTimetable] = useState<TimeTableEntry[]>(sampleTimetable);
+  const [dailyRoutine, setDailyRoutine] = useState<TimeTableEntry[]>([]);
   const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
+  const [routinePreferences, setRoutinePreferences] = useState<RoutinePreferences>({
+    wakeUpTime: '07:00',
+    sleepTime: '23:00',
+    exerciseDuration: 45,
+    studyHoursPerDay: 4,
+    includeHobbies: true,
+    mealTimes: {
+      breakfast: '08:00',
+      lunch: '13:00',
+      dinner: '19:00'
+    }
+  });
 
   const addMessage = (content: string, role: 'user' | 'assistant') => {
     const newMessage: ChatMessage = {
@@ -47,6 +77,12 @@ export const StudyAssistantProvider = ({ children }: { children: React.ReactNode
 
   const processCommand = (text: string): string => {
     const lowerText = text.toLowerCase();
+    
+    // Daily routine generation request
+    if (lowerText.includes("routine") || lowerText.includes("daily schedule")) {
+      generateDailyRoutine();
+      return commonResponses.routineGeneration + " You can check it out in the routine tab.";
+    }
     
     // Timetable generation request
     if (lowerText.includes("timetable") || lowerText.includes("schedule")) {
@@ -96,10 +132,10 @@ export const StudyAssistantProvider = ({ children }: { children: React.ReactNode
     
     // Fallback response
     if (lowerText.includes("hello") || lowerText.includes("hi")) {
-      return "Hello! I'm your Study Assistant. I can help you with study recommendations, create timetables, and answer questions about your studies. What would you like help with today?";
+      return "Hello! I'm your Study Assistant. I can help you with study recommendations, create timetables, generate daily routines, and answer questions about your studies. What would you like help with today?";
     }
     
-    return "I'm here to help with your studies. You can ask me to generate a timetable, recommend study resources, provide study tips, or answer questions about your subjects.";
+    return "I'm here to help with your studies. You can ask me to generate a timetable, daily routine, recommend study resources, provide study tips, or answer questions about your subjects.";
   };
 
   const sendMessage = (message: string) => {
@@ -211,6 +247,318 @@ export const StudyAssistantProvider = ({ children }: { children: React.ReactNode
     setTimetable(newTimetable);
   };
 
+  // Generate a daily routine based on preferences
+  const generateDailyRoutine = (wakeUpTime = routinePreferences.wakeUpTime, sleepTime = routinePreferences.sleepTime) => {
+    const newRoutine: TimeTableEntry[] = [];
+    let entryId = 1;
+    
+    // Parse wake up and sleep times
+    const wakeHour = parseInt(wakeUpTime.split(':')[0]);
+    const wakeMinute = parseInt(wakeUpTime.split(':')[1]);
+    const sleepHour = parseInt(sleepTime.split(':')[0]);
+    const sleepMinute = parseInt(sleepTime.split(':')[1]);
+    
+    // Calculate available hours
+    let currentHour = wakeHour;
+    let currentMinute = wakeMinute;
+    
+    // Morning routine
+    newRoutine.push({
+      id: entryId.toString(),
+      title: 'Wake Up & Morning Routine',
+      startTime: formatTime(currentHour, currentMinute),
+      endTime: formatTime(currentHour, currentMinute + 30),
+      type: 'routine',
+      description: 'Brush teeth, wash face, get ready for the day',
+      completed: false
+    });
+    
+    // Advance time by 30 minutes
+    currentMinute += 30;
+    if (currentMinute >= 60) {
+      currentHour += 1;
+      currentMinute -= 60;
+    }
+    entryId++;
+    
+    // Breakfast
+    newRoutine.push({
+      id: entryId.toString(),
+      title: 'Breakfast',
+      startTime: formatTime(currentHour, currentMinute),
+      endTime: formatTime(currentHour, currentMinute + 30),
+      type: 'meal',
+      description: 'Eat a nutritious breakfast',
+      completed: false
+    });
+    
+    // Advance time by 30 minutes
+    currentMinute += 30;
+    if (currentMinute >= 60) {
+      currentHour += 1;
+      currentMinute -= 60;
+    }
+    entryId++;
+    
+    // Morning study session
+    newRoutine.push({
+      id: entryId.toString(),
+      title: 'Morning Study Session',
+      startTime: formatTime(currentHour, currentMinute),
+      endTime: formatTime(currentHour + 2, currentMinute),
+      subject: 'Priority Subject',
+      type: 'study',
+      description: 'Focus on your most challenging subject when your mind is fresh',
+      completed: false
+    });
+    
+    // Advance time by 2 hours
+    currentHour += 2;
+    entryId++;
+    
+    // Short break
+    newRoutine.push({
+      id: entryId.toString(),
+      title: 'Short Break',
+      startTime: formatTime(currentHour, currentMinute),
+      endTime: formatTime(currentHour, currentMinute + 15),
+      type: 'break',
+      description: 'Take a short break to refresh',
+      completed: false
+    });
+    
+    // Advance time by 15 minutes
+    currentMinute += 15;
+    if (currentMinute >= 60) {
+      currentHour += 1;
+      currentMinute -= 60;
+    }
+    entryId++;
+    
+    // Calculate lunch time (around 1pm if possible)
+    let lunchHour = 13;
+    let lunchMinute = 0;
+    
+    // If we're already past 1pm, set lunch to current time
+    if (currentHour > lunchHour || (currentHour === lunchHour && currentMinute > 0)) {
+      lunchHour = currentHour;
+      lunchMinute = currentMinute;
+    }
+    
+    // If we're before 1pm, add another study session
+    if (currentHour < lunchHour || (currentHour === lunchHour && currentMinute === 0)) {
+      // Mid-morning study session
+      newRoutine.push({
+        id: entryId.toString(),
+        title: 'Mid-morning Study Session',
+        startTime: formatTime(currentHour, currentMinute),
+        endTime: formatTime(lunchHour, 0),
+        subject: 'Secondary Subject',
+        type: 'study',
+        description: 'Work on your second priority subject',
+        completed: false
+      });
+      entryId++;
+    }
+    
+    // Lunch
+    newRoutine.push({
+      id: entryId.toString(),
+      title: 'Lunch Break',
+      startTime: formatTime(lunchHour, lunchMinute),
+      endTime: formatTime(lunchHour, lunchMinute + 45),
+      type: 'meal',
+      description: 'Take time to eat a balanced lunch and rest',
+      completed: false
+    });
+    
+    // Update current time to after lunch
+    currentHour = lunchHour;
+    currentMinute = lunchMinute + 45;
+    if (currentMinute >= 60) {
+      currentHour += 1;
+      currentMinute -= 60;
+    }
+    entryId++;
+    
+    // Afternoon exercise
+    newRoutine.push({
+      id: entryId.toString(),
+      title: 'Exercise',
+      startTime: formatTime(currentHour, currentMinute),
+      endTime: formatTime(currentHour, currentMinute + routinePreferences.exerciseDuration),
+      type: 'exercise',
+      description: 'Physical activity to boost energy and focus',
+      completed: false
+    });
+    
+    // Advance time
+    currentMinute += routinePreferences.exerciseDuration;
+    while (currentMinute >= 60) {
+      currentHour += 1;
+      currentMinute -= 60;
+    }
+    entryId++;
+    
+    // Afternoon study session
+    newRoutine.push({
+      id: entryId.toString(),
+      title: 'Afternoon Study Session',
+      startTime: formatTime(currentHour, currentMinute),
+      endTime: formatTime(currentHour + 1, currentMinute + 30),
+      subject: 'Review Subject',
+      type: 'study',
+      description: 'Review material from previous sessions',
+      completed: false
+    });
+    
+    // Advance time by 1.5 hours
+    currentHour += 1;
+    currentMinute += 30;
+    while (currentMinute >= 60) {
+      currentHour += 1;
+      currentMinute -= 60;
+    }
+    entryId++;
+    
+    // Break time
+    newRoutine.push({
+      id: entryId.toString(),
+      title: 'Afternoon Break',
+      startTime: formatTime(currentHour, currentMinute),
+      endTime: formatTime(currentHour, currentMinute + 30),
+      type: 'break',
+      description: 'Take a refreshing break, maybe have a snack',
+      completed: false
+    });
+    
+    // Advance time by 30 minutes
+    currentMinute += 30;
+    if (currentMinute >= 60) {
+      currentHour += 1;
+      currentMinute -= 60;
+    }
+    entryId++;
+    
+    // Optional hobby time if enabled
+    if (routinePreferences.includeHobbies) {
+      newRoutine.push({
+        id: entryId.toString(),
+        title: 'Hobby/Free Time',
+        startTime: formatTime(currentHour, currentMinute),
+        endTime: formatTime(currentHour + 1, currentMinute),
+        type: 'other',
+        description: 'Engage in a hobby or activity you enjoy',
+        completed: false
+      });
+      
+      // Advance time by 1 hour
+      currentHour += 1;
+      entryId++;
+    }
+    
+    // Calculate dinner time (around 7pm)
+    const dinnerHour = parseInt(routinePreferences.mealTimes.dinner.split(':')[0]);
+    const dinnerMinute = parseInt(routinePreferences.mealTimes.dinner.split(':')[1]);
+    
+    // If we're already past dinner time, set dinner to current time
+    let actualDinnerHour = dinnerHour;
+    let actualDinnerMinute = dinnerMinute;
+    
+    if (currentHour > dinnerHour || (currentHour === dinnerHour && currentMinute > dinnerMinute)) {
+      actualDinnerHour = currentHour;
+      actualDinnerMinute = currentMinute;
+    }
+    
+    // If we're before dinner time, add another study session
+    if (currentHour < dinnerHour || (currentHour === dinnerHour && currentMinute < dinnerMinute)) {
+      // Evening study session
+      newRoutine.push({
+        id: entryId.toString(),
+        title: 'Evening Study Session',
+        startTime: formatTime(currentHour, currentMinute),
+        endTime: formatTime(dinnerHour, dinnerMinute),
+        subject: 'Light Review',
+        type: 'study',
+        description: 'Light review or easier subject',
+        completed: false
+      });
+      entryId++;
+    }
+    
+    // Dinner
+    newRoutine.push({
+      id: entryId.toString(),
+      title: 'Dinner',
+      startTime: formatTime(actualDinnerHour, actualDinnerMinute),
+      endTime: formatTime(actualDinnerHour, actualDinnerMinute + 45),
+      type: 'meal',
+      description: 'Enjoy a balanced dinner',
+      completed: false
+    });
+    
+    // Update current time
+    currentHour = actualDinnerHour;
+    currentMinute = actualDinnerMinute + 45;
+    if (currentMinute >= 60) {
+      currentHour += 1;
+      currentMinute -= 60;
+    }
+    entryId++;
+    
+    // Evening relaxation
+    newRoutine.push({
+      id: entryId.toString(),
+      title: 'Evening Relaxation',
+      startTime: formatTime(currentHour, currentMinute),
+      endTime: formatTime(currentHour + 1, currentMinute),
+      type: 'other',
+      description: 'Relax and wind down for the day',
+      completed: false
+    });
+    
+    // Advance time by 1 hour
+    currentHour += 1;
+    entryId++;
+    
+    // Pre-sleep routine
+    newRoutine.push({
+      id: entryId.toString(),
+      title: 'Pre-Sleep Routine',
+      startTime: formatTime(sleepHour - 1, sleepMinute),
+      endTime: formatTime(sleepHour, sleepMinute),
+      type: 'routine',
+      description: 'Prepare for bed, brush teeth, read a book',
+      completed: false
+    });
+    entryId++;
+    
+    // Sleep time
+    newRoutine.push({
+      id: entryId.toString(),
+      title: 'Sleep',
+      startTime: formatTime(sleepHour, sleepMinute),
+      endTime: formatTime(wakeHour, wakeMinute, true),
+      type: 'other',
+      description: 'Get restful sleep',
+      completed: false
+    });
+    
+    setDailyRoutine(newRoutine);
+  };
+  
+  // Format time helper
+  const formatTime = (hour: number, minute: number, nextDay = false): string => {
+    const adjustedHour = hour >= 24 ? hour - 24 : hour;
+    return `${adjustedHour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}${nextDay ? ' (next day)' : ''}`;
+  };
+
+  // Update routine preferences
+  const personalizeDailyRoutine = (preferences: RoutinePreferences) => {
+    setRoutinePreferences(preferences);
+    generateDailyRoutine(preferences.wakeUpTime, preferences.sleepTime);
+  };
+
   const clearMessages = () => {
     setMessages([{
       id: '1',
@@ -228,6 +576,11 @@ export const StudyAssistantProvider = ({ children }: { children: React.ReactNode
     );
   };
 
+  // Generate an initial daily routine when first loaded
+  useEffect(() => {
+    generateDailyRoutine();
+  }, []);
+
   return (
     <StudyAssistantContext.Provider
       value={{
@@ -239,7 +592,11 @@ export const StudyAssistantProvider = ({ children }: { children: React.ReactNode
         recommendResources,
         isGeneratingResponse,
         clearMessages,
-        markTimetableItemComplete
+        markTimetableItemComplete,
+        dailyRoutine,
+        generateDailyRoutine,
+        personalizeDailyRoutine,
+        routinePreferences
       }}
     >
       {children}
