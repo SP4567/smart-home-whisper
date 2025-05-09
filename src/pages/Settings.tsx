@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -8,19 +7,32 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function Settings() {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+  const { user } = useAuth();
   
   // Mock user settings
   const [userSettings, setUserSettings] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
+    name: user?.name || "Guest User",
+    email: user?.email || "",
     notifications: true,
     location: "123 Main St, Anytown, USA",
     timezone: "America/New_York",
   });
+  
+  // Update settings when user changes
+  useEffect(() => {
+    if (user) {
+      setUserSettings(prev => ({
+        ...prev,
+        name: user.name,
+        email: user.email
+      }));
+    }
+  }, [user]);
   
   // Mock app settings
   const [appSettings, setAppSettings] = useState({
@@ -53,6 +65,9 @@ export default function Settings() {
         title: "Profile updated",
         description: "Your profile information has been saved.",
       });
+      
+      // In a real app, you'd update the user profile in the database
+      // For now, we'll just show the toast notification
     }, 1000);
   };
   
@@ -125,6 +140,7 @@ export default function Settings() {
                     type="email"
                     value={userSettings.email}
                     onChange={(e) => setUserSettings({ ...userSettings, email: e.target.value })}
+                    disabled={!!user} // Disable email editing if logged in
                   />
                 </div>
                 
