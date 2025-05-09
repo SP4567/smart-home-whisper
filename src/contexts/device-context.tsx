@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState } from "react";
 import { findAvailableDevices } from "@/lib/device-discovery";
 import { DeviceType, ConnectionType, DeviceStatus } from "@/data/mock-data";
@@ -10,7 +11,7 @@ export interface Device {
   isOn: boolean;
   isConnected: boolean;
   status: DeviceStatus | "error";
-  connectionType?: ConnectionType;
+  connectionType: ConnectionType; // Changed from optional to required
   ipAddress?: string;
   macAddress?: string;
   data?: {
