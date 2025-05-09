@@ -5,6 +5,7 @@ import { ThemeToggle } from "./theme-toggle";
 import { Outlet } from "react-router-dom";
 import { Bell, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { UserAuthNav } from "./user-auth-nav";
 
 export function Layout() {
   return (
@@ -30,6 +31,9 @@ export function Layout() {
                 <Bell className="h-5 w-5" />
                 <span className="sr-only">Notifications</span>
               </Button>
+
+              {/* User auth navigation */}
+              <UserAuthNav />
 
               {/* Dark/Light Mode Toggle (mobile) */}
               <div className="block md:hidden">
