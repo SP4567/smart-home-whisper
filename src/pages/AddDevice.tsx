@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useDevices } from "@/contexts/device-context";
 import { useNavigate } from "react-router-dom";
@@ -31,11 +30,13 @@ export default function AddDevice() {
     e.preventDefault();
     
     addDevice({
+      id: `${deviceType}-${Date.now()}`,
       name,
       type: deviceType,
       room,
       status: "online",
       isOn: false,
+      isConnected: true,
       connectionType,
       ...(connectionType === "wifi" && ipAddress ? { ipAddress } : {}),
       ...(connectionType === "bluetooth" && macAddress ? { macAddress } : {}),

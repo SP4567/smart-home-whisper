@@ -1,22 +1,25 @@
-
 import React, { createContext, useContext, useState } from "react";
 import { findAvailableDevices } from "@/lib/device-discovery";
+import { DeviceType, ConnectionType, DeviceStatus } from "@/data/mock-data";
 
 export interface Device {
   id: string;
   name: string;
-  type: "light" | "thermostat" | "lock" | "camera" | "speaker";
+  type: DeviceType;
   room: string;
   isOn: boolean;
   isConnected: boolean;
-  status: "online" | "offline" | "error";
-  connectionType?: "wifi" | "bluetooth";
+  status: DeviceStatus | "error";
+  connectionType?: ConnectionType;
+  ipAddress?: string;
+  macAddress?: string;
   data?: {
     brightness?: number;
     color?: string;
     temperature?: number;
     locked?: boolean;
     volume?: number;
+    batteryLevel?: number;
   };
 }
 

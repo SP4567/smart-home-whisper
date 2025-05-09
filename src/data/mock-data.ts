@@ -1,4 +1,3 @@
-
 export type DeviceType = 
   | "light" 
   | "thermostat" 
@@ -8,8 +7,8 @@ export type DeviceType =
   | "vacuum" 
   | "outlet";
 
-export type DeviceStatus = "online" | "offline";
-export type ConnectionType = "wifi" | "bluetooth" | "none";
+export type DeviceStatus = "online" | "offline" | "error";
+export type ConnectionType = "wifi" | "bluetooth";
 
 export interface Device {
   id: string;

@@ -20,18 +20,18 @@ export function DeviceScanner() {
     await scanForNewDevices();
   };
 
-  const handleConnect = async (device: any, index: number) => {
-    const deviceKey = `${device.connectionType}-${index}`;
+  const handleConnect = async (deviceId: string, index: number) => {
+    const deviceKey = `${index}`;
     setConnecting(prev => ({ ...prev, [deviceKey]: true }));
     
     try {
-      await connectToNewDevice(device);
+      await connectToNewDevice(deviceId);
     } finally {
       setConnecting(prev => ({ ...prev, [deviceKey]: false }));
     }
   };
 
-  const getConnectionIcon = (type: ConnectionType) => {
+  const getConnectionIcon = (type?: ConnectionType) => {
     switch (type) {
       case "wifi":
         return <Wifi className="h-4 w-4" />;
@@ -73,11 +73,11 @@ export function DeviceScanner() {
               <div className="rounded-md border">
                 {scanResults.map((device, index) => (
                   <div 
-                    key={`${device.connectionType}-${index}`}
+                    key={`${device.id || index}`}
                     className="flex items-center justify-between border-b p-3 last:border-0"
                   >
                     <div className="flex items-center space-x-3">
-                      {getConnectionIcon(device.connectionType || "wifi")}
+                      {getConnectionIcon(device.connectionType)}
                       <div>
                         <p className="font-medium">{device.name}</p>
                         <p className="text-xs text-muted-foreground">
@@ -89,10 +89,10 @@ export function DeviceScanner() {
                     </div>
                     <Button 
                       size="sm" 
-                      onClick={() => handleConnect(device, index)}
-                      disabled={connecting[`${device.connectionType}-${index}`]}
+                      onClick={() => handleConnect(device.id, index)}
+                      disabled={connecting[`${index}`]}
                     >
-                      {connecting[`${device.connectionType}-${index}`] ? (
+                      {connecting[`${index}`] ? (
                         <>
                           <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                           Connecting

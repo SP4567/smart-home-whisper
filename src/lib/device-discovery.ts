@@ -19,6 +19,7 @@ export async function findAvailableDevices(): Promise<Device[]> {
       isConnected: false,
       status: "online",
       connectionType: "wifi",
+      ipAddress: "192.168.1.100",
       data: {
         brightness: 80,
         color: "#FFFFFF"
@@ -33,6 +34,7 @@ export async function findAvailableDevices(): Promise<Device[]> {
       isConnected: false,
       status: "online",
       connectionType: "wifi",
+      ipAddress: "192.168.1.101",
       data: {
         temperature: 72
       }
@@ -46,6 +48,7 @@ export async function findAvailableDevices(): Promise<Device[]> {
       isConnected: false,
       status: "online",
       connectionType: "bluetooth",
+      macAddress: "00:11:22:33:44:55",
       data: {
         locked: true
       }
@@ -59,6 +62,7 @@ export async function findAvailableDevices(): Promise<Device[]> {
       isConnected: false,
       status: "offline",
       connectionType: "wifi",
+      ipAddress: "192.168.1.102",
       data: {
         volume: 50
       }
