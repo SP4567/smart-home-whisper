@@ -1,5 +1,5 @@
 
-import { Device } from "@/contexts/device-context";
+import { Device } from "@/types/device-types";
 
 // This is a mock implementation of device discovery
 // In a real application, this would use Web Bluetooth, WiFi APIs, or other connectivity methods
@@ -18,7 +18,7 @@ export async function findAvailableDevices(): Promise<Device[]> {
       isOn: false,
       isConnected: false,
       status: "online",
-      connectionType: "wifi", // Now required field
+      connectionType: "wifi",
       ipAddress: "192.168.1.100",
       data: {
         brightness: 80,
@@ -33,7 +33,7 @@ export async function findAvailableDevices(): Promise<Device[]> {
       isOn: true,
       isConnected: false,
       status: "online",
-      connectionType: "wifi", // Now required field
+      connectionType: "wifi",
       ipAddress: "192.168.1.101",
       data: {
         temperature: 72
@@ -47,7 +47,7 @@ export async function findAvailableDevices(): Promise<Device[]> {
       isOn: true,
       isConnected: false,
       status: "online",
-      connectionType: "bluetooth", // Now required field
+      connectionType: "bluetooth",
       macAddress: "00:11:22:33:44:55",
       data: {
         locked: true
@@ -61,7 +61,7 @@ export async function findAvailableDevices(): Promise<Device[]> {
       isOn: false,
       isConnected: false,
       status: "offline",
-      connectionType: "wifi", // Now required field
+      connectionType: "wifi",
       ipAddress: "192.168.1.102",
       data: {
         volume: 50

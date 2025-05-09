@@ -1,3 +1,4 @@
+
 import { 
   Lightbulb, 
   Thermometer, 
@@ -11,7 +12,7 @@ import {
   Wifi,
   Bluetooth
 } from "lucide-react";
-import { Device } from "@/data/mock-data";
+import { Device } from "@/types/device-types";
 import { useDevices } from "@/contexts/device-context";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
