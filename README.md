@@ -2,7 +2,7 @@
 
 Welcome to **Smart Home Whisper**, your ultimate solution for smart home automation! This project is designed to bring convenience, efficiency, and control to your smart home devices through a sleek, user-friendly interface.
 
-![Smart Home Whisper](https://smarthomewhisper.netlify.app/)
+[Smart Home Whisper](https://smarthomewhisper.netlify.app/)
 
 ## 🚀 Features
 
